@@ -1,13 +1,13 @@
 # Encrypted Messaging System  
 
 ## Table of Contents
-1. [Abstract]
-2. [Introduction]
-3. [Key Features]
-4. [Definitions of Key Terminologies]
-5. [How It Works]
-6. [Testing]
-7. [How to Run]
+1. Abstract
+2. Introduction
+3. Key Features
+4. Definitions of Key Terminologies
+5. How It Works
+6. Testing
+7. How to Run
 
 
 
