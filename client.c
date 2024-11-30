@@ -1,64 +1,91 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <pthread.h>
+#include <winsock2.h>
 
-#define PORT 12345
+#pragma comment(lib, "ws2_32.lib") // Link against Winsock library
+
+#define SERVER_IP "127.0.0.1"
+#define SERVER_PORT 12345
 #define BUFFER_SIZE 1024
+#define DELIMITER "\n" // To mark the end of each message
 
-
-
-void *receive_messages(void *arg) {
-    int socket = *((int *)arg);
-    char buffer[BUFFER_SIZE];
-    while (1) {
-        int bytes_received = recv(socket, buffer, sizeof(buffer), 0);
-        if (bytes_received <= 0) {
-            printf("Disconnected from server\n");
-            exit(1);
-        }
-        buffer[bytes_received] = '\0';
-        printf("%s", buffer);
-    }
-    return NULL;
-}
-
-int main() {
-    int client_socket;
+void start_client() {
+    WSADATA wsa_data;
+    SOCKET client_socket;
     struct sockaddr_in server_addr;
     char buffer[BUFFER_SIZE];
 
+    // Initialize Winsock
+    if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0) {
+        printf("[CLIENT ERROR] Winsock initialization failed. Error Code: %d\n", WSAGetLastError());
+        exit(EXIT_FAILURE);
+    }
+
+    // Create the socket
     client_socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (client_socket == -1) {
-        perror("Socket creation failed");
-        exit(1);
+    if (client_socket == INVALID_SOCKET) {
+        printf("[CLIENT ERROR] Socket creation failed. Error Code: %d\n", WSAGetLastError());
+        WSACleanup();
+        exit(EXIT_FAILURE);
     }
 
+    // Configure server address
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(PORT);
-    server_addr.sin_addr.s_addr = inet_addr("192.168.1.59");
+    server_addr.sin_port = htons(SERVER_PORT);
+    server_addr.sin_addr.s_addr = inet_addr(SERVER_IP);
 
-    if (connect(client_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
-        perror("Connection failed");
-        exit(1);
+    // Connect to the server
+    if (connect(client_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        printf("[CLIENT ERROR] Connection to server failed. Error Code: %d\n", WSAGetLastError());
+        closesocket(client_socket);
+        WSACleanup();
+        exit(EXIT_FAILURE);
     }
 
-    char username[50];
-    printf("Enter your username: ");
-    fgets(username, sizeof(username), stdin);
-    username[strcspn(username, "\n")] = '\0';
-    send(client_socket, username, strlen(username), 0);
+    printf("[CLIENT] Connected to server at %s:%d\n", SERVER_IP, SERVER_PORT);
 
-    pthread_t thread;
-    pthread_create(&thread, NULL, receive_messages, &client_socket);
-
+    // Communication loop
     while (1) {
-        fgets(buffer, sizeof(buffer), stdin);
+        printf("[CLIENT] Enter a message (type 'exit' to quit): ");
+        fgets(buffer, BUFFER_SIZE, stdin);
+
+        // Remove newline character from input
+        size_t len = strlen(buffer);
+        if (len > 0 && buffer[len - 1] == '\n') {
+            buffer[len - 1] = '\0';
+        }
+
+        // Check for exit condition
+        if (strcmp(buffer, "exit") == 0) {
+            printf("[CLIENT] Disconnecting.\n");
+            break;
+        }
+
+        // Send message to server
+        strcat(buffer, DELIMITER); // Add delimiter to mark message end
         send(client_socket, buffer, strlen(buffer), 0);
+
+        // Receive server response
+        memset(buffer, 0, BUFFER_SIZE);
+        int bytes_received = recv(client_socket, buffer, BUFFER_SIZE - 1, 0);
+        if (bytes_received <= 0) {
+            printf("[CLIENT] Server disconnected.\n");
+            break;
+        }
+
+        // Ensure buffer ends with a null terminator
+        buffer[bytes_received] = '\0';
+        printf("[CLIENT RECEIVED] %s", buffer);
     }
 
-    close(client_socket);
+    // Close socket and cleanup Winsock
+    closesocket(client_socket);
+    WSACleanup();
+    printf("[CLIENT] Connection closed.\n");
+}
+
+int main() {
+    start_client();
     return 0;
 }
