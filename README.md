@@ -57,13 +57,18 @@ With increasing concerns about data privacy, secure communication protocols are 
 1. **Set Up the Network**: Ensure the devices (nodes) are on the same LAN or connected through a configured network. Use `ifconfig` or `ipconfig` to retrieve the IP addresses of the nodes.  
 2. **Edit Configuration**: Update the server and client code with the correct IP addresses and port numbers.  
 3. **Compile Code**:  
-   - For C implementation:  
+   - For C implementation in Windows:  
      ```bash
      gcc server.c -o server
      gcc client.c -o client
-     ```  
+     ```
+     - For C implementation in Mac:  
+     ```bash
+     gcc macServer.c -o server
+     gcc macClient.c -o client
+     ``` 
    - For Python implementation, ensure you have Python 3 installed.  
-4. **Run the Applications**:  
+4. **Run the Applications in Windows**:  
    - Start the server:  
      ```bash
      ./server
@@ -71,6 +76,15 @@ With increasing concerns about data privacy, secure communication protocols are 
    - Start the client in a separate terminal:  
      ```bash
      ./client
+     ```
+4. **Run the Applications in Mac**:  
+   - Start the server:  
+     ```bash
+     ./macServer
+     ```  
+   - Start the client in a separate terminal:  
+     ```bash
+     ./macClient
      ```  
 5. **Exchange Messages**: The client can now send encrypted messages to the server, and the server will respond securely.
 
