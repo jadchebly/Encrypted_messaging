@@ -2,12 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <winsock2.h>
+#include "encryption.h" // Include the header for encryption functions
 
 #pragma comment(lib, "ws2_32.lib") // Link against Winsock library
 
 #define SERVER_PORT 12345
 #define BUFFER_SIZE 1024
 #define DELIMITER "\n" // To mark the end of each message
+#define ENCRYPTION_KEY "mysecurekey" // Encryption key
 
 void start_server() {
     WSADATA wsa_data;
@@ -44,7 +46,7 @@ void start_server() {
     }
 
     // Start listening for connections
-    if (listen(server_socket, 5) == SOCKET_ERROR) {
+    if (listen(server_socket, SOMAXCONN) == SOCKET_ERROR) {
         printf("[SERVER ERROR] Listen failed. Error Code: %d\n", WSAGetLastError());
         closesocket(server_socket);
         WSACleanup();
@@ -53,38 +55,40 @@ void start_server() {
 
     printf("[SERVER] Listening on port %d...\n", SERVER_PORT);
 
-    // Accept a client connection
-    client_socket = accept(server_socket, (struct sockaddr*)&client_addr, &client_addr_len);
-    if (client_socket == INVALID_SOCKET) {
-        printf("[SERVER ERROR] Client connection failed. Error Code: %d\n", WSAGetLastError());
-        closesocket(server_socket);
-        WSACleanup();
-        exit(EXIT_FAILURE);
-    }
-
-    printf("[SERVER] Client connected.\n");
-
-    // Communication loop
     while (1) {
-        memset(buffer, 0, BUFFER_SIZE);
-        int bytes_received = recv(client_socket, buffer, BUFFER_SIZE - 1, 0);
-        if (bytes_received <= 0) {
-            printf("[SERVER] Client disconnected.\n");
-            break;
+        printf("[SERVER] Waiting for a new client...\n");
+
+        client_socket = accept(server_socket, (struct sockaddr*)&client_addr, &client_addr_len);
+        if (client_socket == INVALID_SOCKET) {
+            printf("[SERVER ERROR] Client connection failed. Error Code: %d\n", WSAGetLastError());
+            continue;
         }
 
-        // Ensure buffer ends with a null terminator
-        buffer[bytes_received] = '\0';
-        printf("[SERVER RECEIVED] %s", buffer);
+        printf("[SERVER] Client connected.\n");
 
-        // Respond to the client
-        char response[BUFFER_SIZE];
-        snprintf(response, BUFFER_SIZE, "Server received: %s%s", buffer, DELIMITER);
-        send(client_socket, response, strlen(response), 0);
+        while (1) {
+            memset(buffer, 0, BUFFER_SIZE);
+            int bytes_received = recv(client_socket, buffer, BUFFER_SIZE - 1, 0);
+            if (bytes_received <= 0) {
+                printf("[SERVER] Client disconnected.\n");
+                break;
+            }
+
+            // Decrypt the received message
+            xor_decrypt(buffer, bytes_received, ENCRYPTION_KEY, strlen(ENCRYPTION_KEY));
+            buffer[bytes_received] = '\0'; // Null-terminate
+            printf("[SERVER RECEIVED] %s\n", buffer);
+
+            // Encrypt and send the response
+            char response[BUFFER_SIZE];
+            snprintf(response, BUFFER_SIZE, "Server received: %s%s", buffer, DELIMITER);
+            xor_encrypt_decrypt(response, strlen(response), ENCRYPTION_KEY, strlen(ENCRYPTION_KEY));
+            send(client_socket, response, strlen(response), 0);
+        }
+
+        closesocket(client_socket);
     }
 
-    // Close sockets
-    closesocket(client_socket);
     closesocket(server_socket);
     WSACleanup();
     printf("[SERVER] Server closed.\n");
