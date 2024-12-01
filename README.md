@@ -1,28 +1,39 @@
 # Encrypted Messaging System  
 
-## Table of Contents
-1. Abstract
-2. Introduction
-3. Key Features
-4. Definitions of Key Terminologies
-5. How It Works
-6. Testing
-7. How to Run
+## Table of Contents  
+1. Abstract  
+2. Purpose  
+3. Key Features  
+4. Definitions of Key Terminologies  
+5. How It Works  
+6. File Structure  
+7. Compilation and Setup  
+8. Testing  
+9. Example Usage  
+10. Acknowledgments  
 
-
+---
 
 ## Abstract  
-This project aims to develop a secure, real-time messaging system utilizing socket programming and encryption techniques. This system enables reliable communication between multiple clients and a server over a TCP/IP network. Messages exchanged between clients are encrypted to ensure confidentiality and protect user data during transmission.
+This project demonstrates a secure, real-time messaging system using sockets and basic encryption. It ensures reliable communication over a TCP/IP network while protecting message confidentiality through encryption.
 
-## Introduction  
-With increasing concerns about data privacy, secure communication protocols are essential for modern applications. This project leverages **TCP/IP sockets** to establish reliable connections and implements **encryption mechanisms** to secure data exchange. The application ensures real-time message delivery between clients while protecting against unauthorized access using encryption.
+---
 
-### Key Features:
-- 🔒 **End-to-End Encryption**: Protects messages from unauthorized access.  
-- ⚡ **Real-Time Messaging**: Supports instant communication with minimal latency.  
-- 🖧 **Socket Programming**: Built on TCP sockets for reliable data transmission.  
-- 🛠️ **Modular Design**: Clean architecture separating networking and encryption logic.  
+## Purpose  
+The project is designed for:
+- Learning networking and encryption fundamentals.
+- Exploring modular programming in C.
+- Building secure internal communication tools.
 
+---
+
+## Key Features  
+- 🔒 **End-to-End Encryption**: Secure data exchange.  
+- ⚡ **Real-Time Messaging**: Instant communication.  
+- 🖧 **Socket Programming**: Reliable TCP communication.  
+- 🛠️ **Modular Design**: Separated networking and encryption logic.  
+
+---
 
 ## Definitions of Key Terminologies  
 - **Socket**: A virtual endpoint for communication between the client and server. It is defined by the combination of an IP address and port number. Sockets enable message exchange over a network.  
@@ -33,6 +44,8 @@ With increasing concerns about data privacy, secure communication protocols are 
 - **Send/Receive**: Transmit and receive messages over an established connection.  
 - **Encrypt/Decrypt**: Secures data using an encryption algorithm, ensuring that only authorized users can read transmitted messages.  
 
+---
+
 ## How It Works  
 1. The server initializes a socket and binds it to a specific IP address and port.  
 2. The server listens for incoming connections, and clients establish connections by using their sockets to connect to the server.  
@@ -40,57 +53,101 @@ With increasing concerns about data privacy, secure communication protocols are 
 4. The server decrypts the message, processes it, and sends an encrypted response back to the client.  
 5. Both sides decrypt messages locally to ensure secure communication.
 
-## How to Run  
-### Prerequisites:
-- A system with a C or Python compiler (depending on your implementation).
-- Multiple devices connected to the same network or configured for TCP/IP communication.
-- Basic knowledge of terminal commands.
+---
 
-### Testing
-1. Start the server and connect a client.
-2. Send a test message from the client. Verify that:
-   - The message appears encrypted in the terminal.
-   - The server decrypts and processes the message correctly.
-3. Send a response back to the client. Ensure proper decryption at the client's end.
+## File Structure  
 
-### Instructions:
-1. **Set Up the Network**: Ensure the devices (nodes) are on the same LAN or connected through a configured network. Use `ifconfig` or `ipconfig` to retrieve the IP addresses of the nodes.  
-2. **Edit Configuration**: Update the server and client code with the correct IP addresses and port numbers.  
-3. **Compile Code**:  
-   - For C implementation in Windows:  
-     ```bash
-     gcc server.c -o server
-     gcc client.c -o client
-     ```
-     - For C implementation in Mac:  
-     ```bash
-     gcc macServer.c -o server
-     gcc macClient.c -o client
-     ``` 
-   - For Python implementation, ensure you have Python 3 installed.  
-4. **Run the Applications in Windows**:  
-   - Start the server:  
-     ```bash
-     ./server
-     ```  
-   - Start the client in a separate terminal:  
-     ```bash
-     ./client
-     ```
-4. **Run the Applications in Mac**:  
-   - Start the server:  
-     ```bash
-     ./macServer
-     ```  
-   - Start the client in a separate terminal:  
-     ```bash
-     ./macClient
-     ```  
-5. **Exchange Messages**: The client can now send encrypted messages to the server, and the server will respond securely.
+The project consists of the following files:
 
+| **File Name**   | **Description**                                                                 |
+|------------------|---------------------------------------------------------------------------------|
+| `client.c`       | Implements the client-side logic, including message encryption and transmission.|
+| `server.c`       | Implements the server-side logic, including message decryption and response.   |
+| `encryption.c`   | Contains the implementation of encryption and decryption functions.            |
+| `encryption.h`   | Header file declaring encryption-related functions for use in other modules.   |
 
-- A functional encrypted messaging application.
-- Demonstration of secure real-time communication over TCP/IP.
-- Insight into socket programming and encryption integration for secure data transmission.
+The `client.c` and `server.c` files interact with `encryption.o` for encryption and decryption logic.
+
+---
+
+## Compilation and Setup  
+
+### Step 1: Set Up the Files
+Ensure all files (`client.c`, `server.c`, `encryption.c`, `encryption.h`) are in the same directory.  
+
+### Step 2: Compile the Encryption Module
+Run the following command to compile the encryption logic:
+```bash
+gcc -c encryption.c -o encryption.o
+```
+
+### Step 3: Compile and Link the Server
+Compile the server with the encryption object file:
+```bash
+gcc -o server.exe server.c encryption.o -lws2_32
+```
+
+### Step 4: Compile and Link the Client
+Compile the client with the encryption object file:
+```bash
+gcc -o client.exe client.c encryption.o -lws2_32
+```
+
+---
+
+## Testing  
+
+1. **Start the Server**:
+   Run the server in one terminal:
+   ```bash
+   server.exe
+   ```
+   - The server should display: `[SERVER] Listening on port 12345`.
+
+2. **Start the Client**:
+   Run the client in another terminal:
+   ```bash
+   client.exe
+   ```
+   - The client should display: `[CLIENT] Connected to server at 127.0.0.1:12345`.
+
+3. **Exchange Messages**:
+   - **Client**: Enter a message (e.g., `Hello, Server!`).
+   - **Server**: The decrypted message will appear in the server terminal.
+   - **Client**: The response from the server (e.g., `Server received: Hello, Server!`) will appear decrypted.
+
+4. **Troubleshooting**:
+   - If the client fails to connect, ensure the server is running and listening on the correct IP and port.
+   - Verify the compiled object files (`encryption.o`) exist in the same directory.
+
+---
+
+## Example Usage  
+
+### Server Output:
+```
+[SERVER] Listening on port 12345...
+[SERVER] Waiting for a new client...
+[SERVER] Client connected.
+[SERVER RECEIVED] Hello, Server!
+```
+
+### Client Output:
+```
+[CLIENT] Connected to server at 127.0.0.1:12345
+[CLIENT] Enter a message (type 'exit' to quit): Hello, Server!
+[CLIENT RECEIVED] Server received: Hello, Server!
+```
+
+---
+
+## Acknowledgments  
+- **GCC Compiler**: For compiling and linking the C code.  
+- **Winsock2 Library**: For enabling socket programming on Windows.  
+- **C Programming Language**: For its versatility in systems programming.  
+
+## Resources  
+- [Beej’s Guide to Network Programming](https://beej.us/guide/bgnet/)  
+- [GCC Documentation](https://gcc.gnu.org/onlinedocs/)  
 
 ---
