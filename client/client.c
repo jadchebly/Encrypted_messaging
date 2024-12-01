@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <winsock2.h>
+#include "encryption.h"
+
 
 #pragma comment(lib, "ws2_32.lib") // Link against Winsock library
 
@@ -9,6 +11,10 @@
 #define SERVER_PORT 12345
 #define BUFFER_SIZE 1024
 #define DELIMITER "\n" // To mark the end of each message
+#define ENCRYPTION_KEY "mysecurekey" // Adjusted key to minimize conflicts
+
+void xor_encrypt_decrypt(char *data, size_t data_len, const char *key, size_t key_len);
+void xor_decrypt(char *data, size_t data_len, const char *key, size_t key_len);
 
 void start_client() {
     WSADATA wsa_data;
@@ -62,8 +68,10 @@ void start_client() {
             break;
         }
 
+        // Encrypt the message
+        xor_encrypt_decrypt(buffer, strlen(buffer), ENCRYPTION_KEY, strlen(ENCRYPTION_KEY));
+
         // Send message to server
-        strcat(buffer, DELIMITER); // Add delimiter to mark message end
         send(client_socket, buffer, strlen(buffer), 0);
 
         // Receive server response
@@ -74,9 +82,10 @@ void start_client() {
             break;
         }
 
-        // Ensure buffer ends with a null terminator
-        buffer[bytes_received] = '\0';
-        printf("[CLIENT RECEIVED] %s", buffer);
+        // Decrypt the server response
+        xor_decrypt(buffer, bytes_received, ENCRYPTION_KEY, strlen(ENCRYPTION_KEY));
+        buffer[bytes_received] = '\0'; // Null-terminate
+        printf("[CLIENT RECEIVED] %s\n", buffer);
     }
 
     // Close socket and cleanup Winsock
