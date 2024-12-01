@@ -1,0 +1,73 @@
+***Requirements (Windows)***:
+
+Operating System: Windows 10 or higher.
+
+Compiler: MinGW (Minimalist GNU for Windows) or any GCC-compatible compiler.
+
+Download and install MinGW: MinGW Installation Guide.
+Ensure gcc is added to the system PATH during installation.
+
+Network Configuration:
+Ensure localhost (127.0.0.1) is accessible.
+Configure the firewall to allow communication on the chosen port (e.g., port 12345).ç
+                
+Required Files:
+client.c (Client source code).
+server.c (Server source code).
+encryption.c (Encryption implementation).
+encryption.h (Encryption function declarations).
+              
+Compilation Instructions:
+Compile encryption.c:
+gcc -c encryption.c -o encryption.o
+              
+Compile and link the server:
+gcc -o server.exe server.c encryption.o -lws2_32
+              
+Compile and link the client:
+gcc -o client.exe client.c encryption.o -lws2_32
+              
+Execution Instructions:
+Start the server:
+server.exe
+Start the client in another terminal:
+client.exe
+              
+Libraries:
+Winsock library is required and linked with the -lws2_32 flag during compilation.
+
+***Requirements (macOS)***:
+
+Operating System: macOS (any modern version supporting GCC and the POSIX API).
+
+Compiler: GCC (installed via Xcode Command Line Tools).
+
+Install with:
+xcode-select --install
+              
+Network Configuration:
+Ensure that localhost (127.0.0.1) is accessible.
+Open necessary ports if testing across a network (e.g., port 12345 for this project).
+                                                  
+Required Files:
+client.c (Client source code).
+server.c (Server source code).
+encryption.c (Encryption implementation).
+encryption.h (Encryption function declarations).
+              
+Compilation Instructions:
+Compile encryption.c:
+gcc -c encryption.c -o encryption.o
+              
+Compile and link the server:
+gcc -o server server.c encryption.o
+              
+Compile and link the client:
+gcc -o client client.c encryption.o
+              
+Execution Instructions:
+Start the server:
+./server
+              
+Start the client in another terminal:
+./client
