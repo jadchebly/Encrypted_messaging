@@ -30,6 +30,7 @@ The project is designed for:
 ## Key Features  
 - 🔒 **End-to-End Encryption**: Secure data exchange.  
 - ⚡ **Real-Time Messaging**: Instant communication.  
+- 📤 **Private Messaging**: Send direct, secure messages to specific users with the `/pm` command.  
 - 🖧 **Socket Programming**: Reliable TCP communication.  
 - 🛠️ **Modular Design**: Separated networking and encryption logic.  
 
@@ -51,7 +52,8 @@ The project is designed for:
 2. The server listens for incoming connections, and clients establish connections by using their sockets to connect to the server.  
 3. Upon connection, messages sent by the client are encrypted and transmitted to the server.  
 4. The server decrypts the message, processes it, and sends an encrypted response back to the client.  
-5. Both sides decrypt messages locally to ensure secure communication.
+5. Both sides decrypt messages locally to ensure secure communication.  
+6. Clients can use `/pm <username> <message>` to send private, encrypted messages to specific users.
 
 ---
 
@@ -66,31 +68,25 @@ The project consists of the following files:
 | `encryption.c`   | Contains the implementation of encryption and decryption functions.            |
 | `encryption.h`   | Header file declaring encryption-related functions for use in other modules.   |
 
-The `client.c` and `server.c` files interact with `encryption.o` for encryption and decryption logic.
+The `client.c` and `server.c` files interact with `encryption.c` for encryption and decryption logic.
 
 ---
 
 ## Compilation and Setup  
 
 ### Step 1: Set Up the Files
-Ensure all files (`client.c`, `server.c`, `encryption.c`, `encryption.h`) are in the same directory.  
+Ensure all files (`client.c`, `server.c`, `encryption.c`, `encryption.h`) are in the same directory.
 
-### Step 2: Compile the Encryption Module
-Run the following command to compile the encryption logic:
+### Step 2: Compile the Server
+Compile the server and link the encryption module and Winsock library:
 ```bash
-gcc -c encryption.c -o encryption.o
+gcc -o server.exe server.c encryption.c -lws2_32
 ```
 
-### Step 3: Compile and Link the Server
-Compile the server with the encryption object file:
+### Step 3: Compile the Client
+Compile the client and link the encryption module and Winsock library:
 ```bash
-gcc -o server.exe server.c encryption.o -lws2_32
-```
-
-### Step 4: Compile and Link the Client
-Compile the client with the encryption object file:
-```bash
-gcc -o client.exe client.c encryption.o -lws2_32
+gcc -o client.exe client.c encryption.c -lws2_32
 ```
 
 ---
@@ -112,13 +108,12 @@ gcc -o client.exe client.c encryption.o -lws2_32
    - The client should display: `[CLIENT] Connected to server at 127.0.0.1:12345`.
 
 3. **Exchange Messages**:
-   - **Client**: Enter a message (e.g., `Hello, Server!`).
-   - **Server**: The decrypted message will appear in the server terminal.
-   - **Client**: The response from the server (e.g., `Server received: Hello, Server!`) will appear decrypted.
+   - **Broadcast**: Enter a message without a command to send it to all users.
+   - **Private Messaging**: Use the `/pm <recipient> <message>` command to send private messages.
 
 4. **Troubleshooting**:
    - If the client fails to connect, ensure the server is running and listening on the correct IP and port.
-   - Verify the compiled object files (`encryption.o`) exist in the same directory.
+   - Verify the compiled files (`server.exe` and `client.exe`) exist in the same directory.
 
 ---
 
@@ -130,13 +125,14 @@ gcc -o client.exe client.c encryption.o -lws2_32
 [SERVER] Waiting for a new client...
 [SERVER] Client connected.
 [SERVER RECEIVED] Hello, Server!
+[SERVER RECEIVED] [Private from Alice]: Hi, Bob!
 ```
 
 ### Client Output:
 ```
 [CLIENT] Connected to server at 127.0.0.1:12345
-[CLIENT] Enter a message (type 'exit' to quit): Hello, Server!
-[CLIENT RECEIVED] Server received: Hello, Server!
+[CLIENT] Enter a message (or /pm <recipient> <message>): /pm Bob Hi, Bob!
+[CLIENT RECEIVED] [Private from Alice]: Hi, Bob!
 ```
 
 ---
