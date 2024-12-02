@@ -1,73 +1,76 @@
-***Requirements (Windows)***:
+# ===========================
+# Encrypted Messaging System
+# ===========================
+# This project implements a secure, encrypted messaging system using socket programming.
+# The code is compatible with both macOS and Windows platforms.
 
-Operating System: Windows 10 or higher.
+# Files:
+# - Encryption:
+#   - encryption.c: Implements encryption and decryption functions.
+#   - encryption.h: Header file for encryption functions.
+# - Server Files:
+#   - macServer.c (macOS version)
+#   - server.c (Windows version)
+# - Client Files:
+#   - macClient.c (macOS version)
+#   - client.c (Windows version)
 
-Compiler: MinGW (Minimalist GNU for Windows) or any GCC-compatible compiler.
+# ---------------------------
+# Dependencies
+# ---------------------------
+# GCC compiler must be installed to compile the C files.
+# Winsock library (Windows) is required for socket programming.
+# Pthread library (macOS) is required for threading.
 
-Download and install MinGW: MinGW Installation Guide.
-Ensure gcc is added to the system PATH during installation.
-
-Network Configuration:
-Ensure localhost (127.0.0.1) is accessible.
-Configure the firewall to allow communication on the chosen port (e.g., port 12345).ç
-                
-Required Files:
-client.c (Client source code).
-server.c (Server source code).
-encryption.c (Encryption implementation).
-encryption.h (Encryption function declarations).
-              
-Compilation Instructions:
-Compile encryption.c:
+# ---------------------------
+# Compilation Instructions
+# ---------------------------
+# For macOS:
+# -------------
+# 1. Compile encryption.c to an object file:
 gcc -c encryption.c -o encryption.o
-              
-Compile and link the server:
+
+# 2. Compile the macOS server code:
+gcc -o macServer macServer.c encryption.o -lpthread
+
+# 3. Compile the macOS client code:
+gcc -o macClient macClient.c encryption.o
+
+# For Windows:
+# -------------
+# 1. Compile encryption.c to an object file:
+gcc -c encryption.c -o encryption.o
+
+# 2. Compile the Windows server code:
 gcc -o server.exe server.c encryption.o -lws2_32
-              
-Compile and link the client:
+
+# 3. Compile the Windows client code:
 gcc -o client.exe client.c encryption.o -lws2_32
-              
-Execution Instructions:
-Start the server:
+
+# ---------------------------
+# Execution Instructions
+# ---------------------------
+# For macOS:
+# -------------
+# 1. Start the server in one terminal:
+./macServer
+
+# 2. Start the client in another terminal:
+./macClient
+
+# For Windows:
+# -------------
+# 1. Start the server in one terminal:
 server.exe
-Start the client in another terminal:
+
+# 2. Start the client in another terminal:
 client.exe
-              
-Libraries:
-Winsock library is required and linked with the -lws2_32 flag during compilation.
 
-***Requirements (macOS)***:
-
-Operating System: macOS (any modern version supporting GCC and the POSIX API).
-
-Compiler: GCC (installed via Xcode Command Line Tools).
-
-Install with:
-xcode-select --install
-              
-Network Configuration:
-Ensure that localhost (127.0.0.1) is accessible.
-Open necessary ports if testing across a network (e.g., port 12345 for this project).
-                                                  
-Required Files:
-client.c (Client source code).
-server.c (Server source code).
-encryption.c (Encryption implementation).
-encryption.h (Encryption function declarations).
-              
-Compilation Instructions:
-Compile encryption.c:
-gcc -c encryption.c -o encryption.o
-              
-Compile and link the server:
-gcc -o server server.c encryption.o
-              
-Compile and link the client:
-gcc -o client client.c encryption.o
-              
-Execution Instructions:
-Start the server:
-./server
-              
-Start the client in another terminal:
-./client
+# ---------------------------
+# Key Notes
+# ---------------------------
+# - Ensure the server is running before starting any clients.
+# - Use '/msg <recipient> <message>' for private messaging.
+# - Broadcast messages by typing a message without the '/msg' command.
+# - Enter 'exit' to disconnect a client from the server.
+# ---------------------------
